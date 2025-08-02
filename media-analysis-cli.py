@@ -298,7 +298,7 @@ class CLI:
             "topic": analyzer.categorize_topic(),
             "sentiment": analyzer.analyze_sentiment(),
             "bias": analyzer.detect_bias(),
-            "credibility": analyzer.analyze_source_credibility()D
+            "credibility": analyzer.analyze_source_credibility()
         }
 
         # 4. Generate and print the report

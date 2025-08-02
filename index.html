@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Analysis Tool</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-pattern"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="logo">📊</div>
+            <h1 class="title">Media Analysis Tool</h1>
+            <p class="subtitle">Analyze news articles for sentiment, bias, credibility, and topic classification using advanced NLP techniques</p>
+        </div>
+
+        <div class="form-container">
+            <input type="url" 
+                   class="url-input" 
+                   id="urlInput" 
+                   placeholder="Enter article URL (e.g., https://example.com/news-article)"
+                   required>
+            
+            <button class="analyze-btn" id="analyzeBtn" onclick="analyzeArticle()">
+                🔍 Analyze Article
+            </button>
+
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                Analyzing article... This may take a moment.
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">💭</div>
+                <div class="feature-title">Sentiment Analysis</div>
+                <div class="feature-desc">Detect positive, negative, or neutral tone</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⚖️</div>
+                <div class="feature-title">Bias Detection</div>
+                <div class="feature-desc">Identify potential bias and loaded language</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-title">Topic Classification</div>
+                <div class="feature-desc">Categorize articles by subject matter</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔍</div>
+                <div class="feature-title">Credibility Assessment</div>
+                <div class="feature-desc">Evaluate source reliability and quality</div>
+            </div>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+            <h3 style="margin-bottom: 1.5rem; color: #374151;">Analysis Results</h3>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let analysisData = {};
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loadingIndicator');
+            const button = document.getElementById('analyzeBtn');
+            
+            loading.style.display = show ? 'flex' : 'none';
+            button.disabled = show;
+            button.textContent = show ? 'Analyzing...' : '🔍 Analyze Article';
+        }
+
+        async function simulateAnalysis(url) {
+            // Simulate API call delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Mock analysis results
+            return {
+                title: "Sample Article Title",
+                url: url,
+                topic: "Technology",
+                sentiment: {
+                    label: "Neutral",
+                    polarity: 0.05,
+                    subjectivity: 0.42
+                },
+                bias: {
+                    assessment: "Low potential for bias",
+                    score: 3,
+                    words: ["important", "significant", "effective"]
+                },
+                credibility: {
+                    assessment: "Appears credible",
+                    score: "72.50/100",
+                    externalLinks: 5
+                }
+            };
+        }
+
+        function displayResults(data) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            resultsContent.innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">📰 Article Title</div>
+                    <div class="result-value">${data.title}</div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-label">🏷️ Primary Topic</div>
+                    <div class="result-value">${data.topic}</div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-label">💭 Sentiment Analysis</div>
+                    <div class="result-value">
+                        <strong>Overall Tone:</strong> ${data.sentiment.label}<br>
+                        <strong>Polarity Score:</strong> ${data.sentiment.polarity} (Range: -1 to 1)<br>
+                        <strong>Subjectivity Score:</strong> ${data.sentiment.subjectivity} (Range: 0 to 1)
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-label">⚖️ Bias Detection</div>
+                    <div class="result-value">
+                        <strong>Assessment:</strong> ${data.bias.assessment}<br>
+                        <strong>Loaded Word Count:</strong> ${data.bias.score}<br>
+                        ${data.bias.words.length > 0 ? `<strong>Sample Words Found:</strong> ${data.bias.words.slice(0, 5).join(', ')}` : ''}
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-label">🔍 Source Credibility</div>
+                    <div class="result-value">
+                        <strong>Assessment:</strong> ${data.credibility.assessment}<br>
+                        <strong>Credibility Score:</strong> ${data.credibility.score}<br>
+                        <strong>External Links Found:</strong> ${data.credibility.externalLinks}
+                    </div>
+                </div>
+            `;
+            
+            resultsContainer.style.display = 'block';
+            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        async function analyzeArticle() {
+            const urlInput = document.getElementById('urlInput');
+            const url = urlInput.value.trim();
+
+            if (!url) {
+                showError('Please enter a URL to analyze.');
+                return;
+            }
+
+            if (!isValidUrl(url)) {
+                showError('Please enter a valid URL (e.g., https://example.com/article).');
+                return;
+            }
+
+            try {
+                showLoading(true);
+                
+                // In a real implementation, this would call your Python backend
+                const results = await simulateAnalysis(url);
+                analysisData = results;
+                
+                displayResults(results);
+                
+            } catch (error) {
+                showError('An error occurred while analyzing the article. Please try again.');
+                console.error('Analysis error:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzeArticle();
+            }
+        });
+
+        // Auto-hide results when input changes
+        document.getElementById('urlInput').addEventListener('input', function() {
+            const resultsContainer = document.getElementById('resultsContainer');
+            if (resultsContainer.style.display === 'block') {
+                resultsContainer.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
